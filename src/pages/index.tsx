@@ -67,7 +67,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <h2 className={inter.className}>
+            <h2 className="underline">
               Docs <span>-&gt;</span>
             </h2>
             <p className={inter.className}>
