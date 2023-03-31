@@ -67,7 +67,7 @@ function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
   )
 }
 
-const mockdata = [
+const icondata = [
   { icon: IconDatabase, label: 'Raw Data' },
   { icon: IconRobot, label: 'Learning Results' },
   { icon: IconDeviceDesktopAnalytics, label: 'Analysis' },
@@ -92,7 +92,7 @@ export default function Sidebar(props: sideBarProps) {
     }
   }
 
-  const links = mockdata.map((link, index) => (
+  const links = icondata.map((link, index) => (
     <NavbarLink
       {...link}
       key={link.label}
