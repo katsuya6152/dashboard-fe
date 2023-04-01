@@ -3,13 +3,13 @@ import { IconLogin, IconThumbUpFilled } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 
-export function StartButton() {
+const StartButton = () => {
   const [isClicked, setIsClicked] = useState(false)
   const router = useRouter()
 
   const handleClick = () => {
     setIsClicked((prev) => !prev)
-    router.push('/row-data')
+    router.push('/raw-data')
   }
 
   return (
@@ -42,3 +42,5 @@ export function StartButton() {
     </Tooltip>
   )
 }
+
+export default StartButton

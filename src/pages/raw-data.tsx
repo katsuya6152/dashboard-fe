@@ -1,25 +1,28 @@
-import axios from 'axios'
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import { useState } from 'react'
 
+import CrawlResults from '@/components/raw-data/CrawlResults'
+import SearchCriteria from '@/components/raw-data/SearchCriteria'
+import RawDataTable from '@/components/raw-data/Table'
 import SideBar from '@/components/SideBar'
-import { RowDataTable } from '@/components/Table'
+import { ax } from '@/libs/axios'
+import { CrawlResultsType, RaceDataType, SearchCriteriaType } from '@/types'
 
-type RaceData = {
-  id: string
-  race_name: string
-  race_place: string
-  number_of_entries: number
-  race_state: string
-  date: string
-  race_sesults: []
-}
-
-const RowData: React.FC<Props> = ({ raceData }) => {
+const RawData: React.FC<Props> = ({ raceData }) => {
   const [active, setActive] = useState(0)
   const [activeTable, setActiveTable] = useState(1)
   const [data, setData] = useState(raceData)
+  const [crawlResultData] = useState<CrawlResultsType>({
+    information: 4780,
+    details: 62057,
+    acquisitionDate: '2023/2/5',
+  })
+  const [SearchCriteriaData] = useState<SearchCriteriaType>({
+    racetype: '芝',
+    racetrack: '東京/中山/中京/京都/阪神',
+    distance: '1600m ~ 3200m',
+  })
 
   const setActivePage = (index: number) => {
     setActive(index)
@@ -27,17 +30,15 @@ const RowData: React.FC<Props> = ({ raceData }) => {
 
   const onClickUpdateData = async (page: number): Promise<void> => {
     setActiveTable(page)
-    const newData = await axios.get<RaceData[]>(
-      `http://localhost:3001/raw/${page - 1}`,
-    )
+    const newData = await ax.get<RaceDataType[]>(`/raw/${page - 1}`)
     setData(newData.data)
   }
 
   return (
     <>
       <Head>
-        <title>Row Data Page</title>
-        <meta name="description" content="Row Data Page" />
+        <title>Raw Data Page</title>
+        <meta name="description" content="Raw Data Page" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className="bg-white">
@@ -45,29 +46,19 @@ const RowData: React.FC<Props> = ({ raceData }) => {
           <SideBar active={active} setActive={setActivePage} />
           <div className="flex flex-col items-center w-full">
             <div className="flex flex-col justify-center items-center w-full">
-              <h1>Row Data</h1>
-              <RowDataTable
+              <h1>Raw Data</h1>
+              <RawDataTable
                 page={activeTable}
                 onChange={onClickUpdateData}
                 data={data}
               />
             </div>
-            <div className="flex justify-center w-10/12 mt-4">
+            <div className="flex justify-center w-10/12 mt-8">
               <div className="w-1/2 mx-8">
-                <h1>Search Criteria</h1>
-                <ul>
-                  <li>競走種別：芝のみ</li>
-                  <li>競馬場：東京・中山・中京・京都・阪神</li>
-                  <li>距離：1600m ~ 3000m</li>
-                </ul>
+                <SearchCriteria data={SearchCriteriaData} />
               </div>
               <div className="w-1/2 mx-8">
-                <h1>Crawl Results</h1>
-                <ul>
-                  <li>レース取得件数：4780</li>
-                  <li>レース結果取得件数：62057</li>
-                  <li>最終取得時間：2023/2/5</li>
-                </ul>
+                <CrawlResults data={crawlResultData} />
               </div>
             </div>
           </div>
@@ -78,13 +69,13 @@ const RowData: React.FC<Props> = ({ raceData }) => {
 }
 
 type Props = {
-  raceData: RaceData[]
+  raceData: RaceDataType[]
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const apiUrl = 'http://localhost:3001/raw/0'
-  const { data } = await axios.get<RaceData[]>(apiUrl)
+  const apiUrl = '/raw/0'
+  const { data } = await ax.get<RaceDataType[]>(apiUrl)
   return { props: { raceData: data } }
 }
 
-export default RowData
+export default RawData

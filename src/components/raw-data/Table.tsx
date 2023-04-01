@@ -1,6 +1,8 @@
 import { createStyles, Pagination, rem, ScrollArea, Table } from '@mantine/core'
 import { useState } from 'react'
 
+import { RaceDataType } from '@/types'
+
 const useStyles = createStyles((theme) => ({
   header: {
     position: 'sticky',
@@ -28,17 +30,7 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-type Race = {
-  id: string
-  race_name: string
-  race_place: string
-  number_of_entries: number
-  race_state: string
-  date: string
-  race_sesults: []
-}
-
-export const RowDataTable = (props: dataProps) => {
+const RawDataTable = (props: dataProps) => {
   const { page, onChange, data } = props
   const { classes, cx } = useStyles()
   const [scrolled, setScrolled] = useState(false)
@@ -87,7 +79,9 @@ export const RowDataTable = (props: dataProps) => {
 }
 
 type dataProps = {
-  data: Race[]
+  data: RaceDataType[]
   page: number
   onChange: (value: number) => void
 }
+
+export default RawDataTable

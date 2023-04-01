@@ -46,14 +46,19 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-interface NavbarLinkProps {
+type NavbarLinkProps = {
   icon: React.FC<any>
   label: string
   active?: boolean
   onClick?: () => void
 }
 
-function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
+const NavbarLink = ({
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: NavbarLinkProps) => {
   const { classes, cx } = useStyles()
   return (
     <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
@@ -73,7 +78,7 @@ const icondata = [
   { icon: IconDeviceDesktopAnalytics, label: 'Analysis' },
 ]
 
-export default function Sidebar(props: sideBarProps) {
+const Sidebar = (props: sideBarProps) => {
   const { active, setActive } = props
   const router = useRouter()
 
@@ -81,7 +86,7 @@ export default function Sidebar(props: sideBarProps) {
     setActive(index)
     switch (index) {
       case 0:
-        router.push('/row-data')
+        router.push('/raw-data')
         break
       case 1:
         router.push('/learning-results')
@@ -116,3 +121,5 @@ type sideBarProps = {
   active: number
   setActive: (index: number) => void
 }
+
+export default Sidebar
