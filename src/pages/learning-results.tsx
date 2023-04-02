@@ -1,14 +1,60 @@
+import { GetStaticProps } from 'next'
 import Head from 'next/head'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
+import ConfusionMatrix from '@/components/learning-results/ConfusionMatrix'
+import EvaluationRing from '@/components/learning-results/EvaluationRing'
+import VersionSelect from '@/components/learning-results/Select'
 import SideBar from '@/components/SideBar'
+import { ax } from '@/libs/axios'
+import { EvaluationType } from '@/types'
 
-export default function LearningResults() {
+type EvaluationValueType = {
+  accuracy: number
+  precision: number
+  recall: number
+}
+const EvaluationCalc = (tp: number, fp: number, tn: number, fn: number) => {
+  const accuracy = (tp + tn) / (tp + fp + tn + fn)
+  const precision = tp / (tp + fp)
+  const recall = tp / (tp + fn)
+
+  return {
+    accuracy: accuracy,
+    precision: precision,
+    recall: recall,
+  }
+}
+
+const LearningResults: React.FC<Props> = ({ evaluation }) => {
   const [active, setActive] = useState(1)
+  const [evaluationValue, setEvaluationValue] = useState<EvaluationValueType>({
+    accuracy: 0,
+    precision: 0,
+    recall: 0,
+  })
+  const [confusionMatrixData] = useState({
+    tp: evaluation[0].TP,
+    fp: evaluation[0].FP,
+    tn: evaluation[0].TN,
+    fn: evaluation[0].FN,
+  })
 
   const setActivePage = (index: number) => {
     setActive(index)
   }
+
+  useEffect(() => {
+    setEvaluationValue(
+      EvaluationCalc(
+        evaluation[0].TP,
+        evaluation[0].FP,
+        evaluation[0].TN,
+        evaluation[0].FN,
+      ),
+    )
+  }, [evaluation])
+
   return (
     <>
       <Head>
@@ -17,9 +63,45 @@ export default function LearningResults() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className="bg-white">
-        <SideBar active={active} setActive={setActivePage} />
-        <div className="flex justify-center">Learning Results</div>
+        <div className="flex">
+          <SideBar active={active} setActive={setActivePage} />
+          <div className="flex w-full">
+            <div className="w-1/2 p-12">
+              <VersionSelect />
+              <div className="flex">
+                <EvaluationRing
+                  label={'Accuracy'}
+                  value={evaluationValue.accuracy}
+                />
+                <EvaluationRing
+                  label={'Precision'}
+                  value={evaluationValue.precision}
+                />
+                <EvaluationRing
+                  label={'Rcall'}
+                  value={evaluationValue.recall}
+                />
+              </div>
+              <ConfusionMatrix data={confusionMatrixData} />
+            </div>
+            <div className="w-1/2 p-12">Right</div>
+          </div>
+        </div>
       </main>
     </>
   )
 }
+
+type Props = {
+  evaluation: EvaluationType[]
+}
+
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const apiUrl = '/results/evaluation'
+  const { data } = await ax.get<EvaluationType[]>(apiUrl, {
+    params: { version: 0 },
+  })
+  return { props: { evaluation: data } }
+}
+
+export default LearningResults

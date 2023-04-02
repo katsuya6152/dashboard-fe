@@ -19,3 +19,16 @@ export type SearchCriteriaType = {
   racetrack: string
   distance: string
 }
+
+export type EvaluationType = {
+  id: string
+  AUC: number
+  FN: number
+  FP: number
+  FPR: [number]
+  TN: number
+  TP: number
+  TPR: [number]
+  create: string
+  version: number
+}
