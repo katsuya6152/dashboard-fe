@@ -1,10 +1,14 @@
+import { Card } from '@mantine/core'
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 
 import ConfusionMatrix from '@/components/learning-results/ConfusionMatrix'
 import EvaluationRing from '@/components/learning-results/EvaluationRing'
+import ImportanceBar from '@/components/learning-results/ImportanceBar'
+import RocCurve from '@/components/learning-results/RocCurve'
 import VersionSelect from '@/components/learning-results/Select'
+import TestTable from '@/components/learning-results/TestTable'
 import SideBar from '@/components/SideBar'
 import { ax } from '@/libs/axios'
 import { EvaluationType } from '@/types'
@@ -63,12 +67,12 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className="bg-white">
-        <div className="flex">
+        <div className="flex h-screen">
           <SideBar active={active} setActive={setActivePage} />
-          <div className="flex w-full">
-            <div className="w-1/2 p-12">
+          <div className="flex w-full h-full">
+            <div className="w-1/2 p-10">
               <VersionSelect />
-              <div className="flex">
+              <div className="flex justify-center my-6">
                 <EvaluationRing
                   label={'Accuracy'}
                   value={evaluationValue.accuracy}
@@ -82,9 +86,21 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
                   value={evaluationValue.recall}
                 />
               </div>
-              <ConfusionMatrix data={confusionMatrixData} />
+              <div className="flex gap-4 h-60">
+                <ConfusionMatrix data={confusionMatrixData} />
+                <RocCurve />
+              </div>
+              <div className="mt-8">
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                  <TestTable />
+                </Card>
+              </div>
             </div>
-            <div className="w-1/2 p-12">Right</div>
+            <div className="w-1/2 p-12">
+              <div className="">
+                <ImportanceBar />
+              </div>
+            </div>
           </div>
         </div>
       </main>

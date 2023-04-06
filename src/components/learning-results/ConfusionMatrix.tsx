@@ -37,6 +37,15 @@ const ConfusionMatrix = (props: ConfusionMatrixProps) => {
     sizeField: 'value',
     shape: 'square',
     color: ['#dddddd', '#9ec8e0', '#5fa4cd', '#2e7ab6', '#114d90'],
+    autoFit: true,
+    yAxis: {
+      label: {
+        rotate: -Math.PI / 2,
+        style: {
+          textAlign: 'center',
+        },
+      },
+    },
     label: {
       style: {
         fill: '#000',
@@ -46,7 +55,7 @@ const ConfusionMatrix = (props: ConfusionMatrixProps) => {
     },
   }
 
-  return <Heatmap {...config} className="max-h-60" />
+  return <Heatmap {...config} className="w-1/2" />
 }
 
 type ConfusionMatrixProps = {
