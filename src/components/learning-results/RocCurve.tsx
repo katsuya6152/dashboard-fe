@@ -21,7 +21,7 @@ const RocCurve = () => {
     },
   ]
 
-  const auc = 0.5587
+  // const auc = 0.5587
 
   const config = {
     data,
@@ -37,27 +37,23 @@ const RocCurve = () => {
       tpr: { type: 'linear' },
       fpr: { type: 'linear' },
     },
-    // autoFit: true,
-    annotations: [
-      {
-        type: 'line',
-        start: ['min', 'min'],
-        end: ['max', 'max'],
-        style: {
-          stroke: 'red',
-          lineDash: [2, 2],
-        },
-      },
-      {
-        type: 'text',
-        position: [0, 0.8],
-        content: `AUC: ${auc}`,
-        offsetY: -4,
-        style: {
-          textBaseline: 'bottom',
-        },
-      },
-    ],
+    autoFit: true,
+    // annotations: [
+    //   {
+    //     type: 'line',
+    //     start: ['min', 'min'],
+    //     end: ['max', 'max'],
+    //     style: {
+    //       stroke: 'red',
+    //       lineDash: [2, 2],
+    //     },
+    //   },
+    //   {
+    //     type: 'text',
+    //     position: [0, 0.9],
+    //     content: `AUC: ${auc}`,
+    //   },
+    // ],
   }
 
   return <Area {...config} className="w-1/2" />
