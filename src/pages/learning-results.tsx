@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import ConfusionMatrix from '@/components/learning-results/ConfusionMatrix'
 import EvaluationRing from '@/components/learning-results/EvaluationRing'
 import ImportanceBar from '@/components/learning-results/ImportanceBar'
+import Memo from '@/components/learning-results/MemoArea'
 import RocCurve from '@/components/learning-results/RocCurve'
 import VersionSelect from '@/components/learning-results/Select'
 import TestTable from '@/components/learning-results/TestTable'
@@ -113,8 +114,11 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
               </div>
             </div>
             <div className="w-1/2 p-12">
-              <div className="">
+              <div className="h-3/4">
                 <ImportanceBar />
+              </div>
+              <div className="h-1/4">
+                <Memo />
               </div>
             </div>
           </div>
