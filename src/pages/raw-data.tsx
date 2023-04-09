@@ -42,10 +42,10 @@ const RawData: React.FC<Props> = ({ raceData }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className="bg-white">
-        <div className="flex">
+        <div className="flex h-screen">
           <SideBar active={active} setActive={setActivePage} />
           <div className="flex flex-col items-center w-full">
-            <div className="flex flex-col justify-center items-center w-full">
+            <div className="flex flex-col justify-center items-center w-full h-2/3">
               <h1>Raw Data</h1>
               <RawDataTable
                 page={activeTable}
@@ -53,7 +53,7 @@ const RawData: React.FC<Props> = ({ raceData }) => {
                 data={data}
               />
             </div>
-            <div className="flex justify-center w-10/12 mt-8">
+            <div className="flex justify-center w-10/12 pt-16">
               <div className="w-1/2 mx-8">
                 <SearchCriteria data={SearchCriteriaData} />
               </div>

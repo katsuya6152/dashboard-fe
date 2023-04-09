@@ -26,6 +26,12 @@ type ImportanceDataType = {
   importance: string
   version: number
 }
+type TestDataType = {
+  id: string
+  create: string
+  test_data: string
+  version: number
+}
 
 const EvaluationCalc = (tp: number, fp: number, tn: number, fn: number) => {
   const accuracy = (tp + tn) / (tp + fp + tn + fn)
@@ -56,8 +62,11 @@ const ChangeImportanceData = (
     value: data[1],
   }))
 }
+const ChangeTestData = (str: string) => {
+  return JSON.parse(str).slice(0, 100)
+}
 
-const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
+const LearningResults: React.FC<Props> = ({ evaluation, importance, test }) => {
   const [active, setActive] = useState(1)
   const [evaluationValue, setEvaluationValue] = useState<EvaluationValueType>({
     accuracy: 0,
@@ -84,6 +93,7 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
       value: 1,
     },
   ])
+  const [testData, setTestData] = useState([])
 
   const setActivePage = (index: number) => {
     setActive(index)
@@ -105,6 +115,10 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
     setImportance(ChangeImportanceData(importance[0].importance))
   }, [importance])
 
+  useEffect(() => {
+    setTestData(ChangeTestData(test[0].test_data))
+  }, [test])
+
   return (
     <>
       <Head>
@@ -116,7 +130,7 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
         <div className="flex h-screen">
           <SideBar active={active} setActive={setActivePage} />
           <div className="flex w-full h-full">
-            <div className="w-1/2 p-10">
+            <div className="h-auto w-1/2 p-10">
               <VersionSelect />
               <div className="flex justify-center my-6">
                 <EvaluationRing
@@ -139,7 +153,8 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
               </div>
               <div className="mt-8">
                 <Card shadow="sm" padding="lg" radius="md" withBorder>
-                  <TestTable />
+                  <h3 className="my-0">Test Data</h3>
+                  <TestTable data={testData} />
                 </Card>
               </div>
             </div>
@@ -161,21 +176,32 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
 type Props = {
   evaluation: EvaluationType[]
   importance: ImportanceDataType[]
+  test: TestDataType[]
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const [evaluationRes, importanceRes] = await Promise.all([
+  const [evaluationRes, importanceRes, processedTestRes] = await Promise.all([
     ax.get<EvaluationType[]>('/results/evaluation', {
       params: { version: 0 },
     }),
     ax.get<ImportanceDataType[]>('/results/importance', {
       params: { version: 0 },
     }),
+    ax.get<TestDataType[]>('/processed-data/test', {
+      params: { version: 0 },
+    }),
   ])
 
   const evaluationData = evaluationRes.data
   const importanceData = importanceRes.data
-  return { props: { evaluation: evaluationData, importance: importanceData } }
+  const testData = processedTestRes.data
+  return {
+    props: {
+      evaluation: evaluationData,
+      importance: importanceData,
+      test: testData,
+    },
+  }
 }
 
 export default LearningResults
