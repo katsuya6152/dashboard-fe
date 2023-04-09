@@ -18,6 +18,7 @@ type EvaluationValueType = {
   accuracy: number
   precision: number
   recall: number
+  f1: number
 }
 type ImportanceDataType = {
   id: string
@@ -30,11 +31,13 @@ const EvaluationCalc = (tp: number, fp: number, tn: number, fn: number) => {
   const accuracy = (tp + tn) / (tp + fp + tn + fn)
   const precision = tp / (tp + fp)
   const recall = tp / (tp + fn)
+  const f1 = (2 * recall * precision) / (recall + precision)
 
   return {
     accuracy: accuracy,
     precision: precision,
     recall: recall,
+    f1: f1,
   }
 }
 const ChangeRocCurveData = (tprArr: number[], fprArr: number[]) => {
@@ -60,6 +63,7 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
     accuracy: 0,
     precision: 0,
     recall: 0,
+    f1: 0,
   })
   const [confusionMatrixData] = useState({
     tp: evaluation[0].TP,
@@ -94,7 +98,6 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
         evaluation[0].FN,
       ),
     )
-
     setRocCurveData(ChangeRocCurveData(evaluation[0].TPR, evaluation[0].FPR))
   }, [evaluation])
 
@@ -125,9 +128,10 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
                   value={evaluationValue.precision}
                 />
                 <EvaluationRing
-                  label={'Rcall'}
+                  label={'Recall'}
                   value={evaluationValue.recall}
                 />
+                <EvaluationRing label={'F1'} value={evaluationValue.f1} />
               </div>
               <div className="flex gap-4 h-60">
                 <ConfusionMatrix data={confusionMatrixData} />
