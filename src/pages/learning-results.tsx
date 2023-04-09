@@ -19,6 +19,12 @@ type EvaluationValueType = {
   precision: number
   recall: number
 }
+type ImportanceDataType = {
+  id: string
+  create: string
+  importance: string
+  version: number
+}
 
 const EvaluationCalc = (tp: number, fp: number, tn: number, fn: number) => {
   const accuracy = (tp + tn) / (tp + fp + tn + fn)
@@ -37,8 +43,18 @@ const ChangeRocCurveData = (tprArr: number[], fprArr: number[]) => {
     fpr: fpr,
   }))
 }
+const ChangeImportanceData = (
+  str: string,
+): { feature: string; value: number }[] => {
+  const obj = JSON.parse(str).importance as Record<string, number>
+  const entries = Object.entries(obj)
+  return entries.map((data) => ({
+    feature: data[0],
+    value: data[1],
+  }))
+}
 
-const LearningResults: React.FC<Props> = ({ evaluation }) => {
+const LearningResults: React.FC<Props> = ({ evaluation, importance }) => {
   const [active, setActive] = useState(1)
   const [evaluationValue, setEvaluationValue] = useState<EvaluationValueType>({
     accuracy: 0,
@@ -58,6 +74,12 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
     },
   ])
   const auc = evaluation[0].AUC.toFixed(4)
+  const [importanceData, setImportance] = useState([
+    {
+      feature: 'feature',
+      value: 1,
+    },
+  ])
 
   const setActivePage = (index: number) => {
     setActive(index)
@@ -75,6 +97,10 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
 
     setRocCurveData(ChangeRocCurveData(evaluation[0].TPR, evaluation[0].FPR))
   }, [evaluation])
+
+  useEffect(() => {
+    setImportance(ChangeImportanceData(importance[0].importance))
+  }, [importance])
 
   return (
     <>
@@ -114,8 +140,8 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
               </div>
             </div>
             <div className="w-1/2 p-12">
-              <div className="h-3/4">
-                <ImportanceBar />
+              <div className="h-3/4 mb-6">
+                <ImportanceBar data={importanceData} />
               </div>
               <div className="h-1/4">
                 <Memo />
@@ -130,14 +156,22 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
 
 type Props = {
   evaluation: EvaluationType[]
+  importance: ImportanceDataType[]
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const apiUrl = '/results/evaluation'
-  const { data } = await ax.get<EvaluationType[]>(apiUrl, {
-    params: { version: 0 },
-  })
-  return { props: { evaluation: data } }
+  const [evaluationRes, importanceRes] = await Promise.all([
+    ax.get<EvaluationType[]>('/results/evaluation', {
+      params: { version: 0 },
+    }),
+    ax.get<ImportanceDataType[]>('/results/importance', {
+      params: { version: 0 },
+    }),
+  ])
+
+  const evaluationData = evaluationRes.data
+  const importanceData = importanceRes.data
+  return { props: { evaluation: evaluationData, importance: importanceData } }
 }
 
 export default LearningResults
