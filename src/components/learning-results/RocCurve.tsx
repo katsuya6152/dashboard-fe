@@ -1,3 +1,4 @@
+import { AreaConfig } from '@ant-design/charts'
 import dynamic from 'next/dynamic'
 import React from 'react'
 const Area = dynamic(
@@ -21,7 +22,7 @@ const RocCurve = () => {
     },
   ]
 
-  // const auc = 0.5587
+  const auc = 0.5587
 
   const config = {
     data,
@@ -38,23 +39,23 @@ const RocCurve = () => {
       fpr: { type: 'linear' },
     },
     autoFit: true,
-    // annotations: [
-    //   {
-    //     type: 'line',
-    //     start: ['min', 'min'],
-    //     end: ['max', 'max'],
-    //     style: {
-    //       stroke: 'red',
-    //       lineDash: [2, 2],
-    //     },
-    //   },
-    //   {
-    //     type: 'text',
-    //     position: [0, 0.9],
-    //     content: `AUC: ${auc}`,
-    //   },
-    // ],
-  }
+    annotations: [
+      {
+        type: 'line',
+        start: [0, 0],
+        end: [1, 1],
+        style: {
+          stroke: 'red',
+          lineDash: [2, 2],
+        },
+      },
+      {
+        type: 'text',
+        position: ['0%', '10%'],
+        content: `AUC: ${auc}`,
+      },
+    ],
+  } as AreaConfig
 
   return <Area {...config} className="w-1/2" />
 }
