@@ -6,26 +6,9 @@ const Area = dynamic(
   { ssr: false },
 )
 
-const RocCurve = () => {
-  const data = [
-    {
-      tpr: 0,
-      fpr: 0,
-    },
-    {
-      tpr: 0.155,
-      fpr: 0.037,
-    },
-    {
-      tpr: 1,
-      fpr: 1,
-    },
-  ]
-
-  const auc = 0.5587
-
+const RocCurve = (props: RocCurveProps) => {
   const config = {
-    data,
+    data: props.data,
     xField: 'fpr',
     yField: 'tpr',
     xAxis: {
@@ -52,12 +35,20 @@ const RocCurve = () => {
       {
         type: 'text',
         position: ['0%', '10%'],
-        content: `AUC: ${auc}`,
+        content: `AUC: ${props.auc}`,
       },
     ],
   } as AreaConfig
 
   return <Area {...config} className="w-1/2" />
+}
+
+type RocCurveProps = {
+  data: {
+    tpr: number
+    fpr: number
+  }[]
+  auc: string
 }
 
 export default RocCurve

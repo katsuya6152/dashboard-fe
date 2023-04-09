@@ -18,6 +18,7 @@ type EvaluationValueType = {
   precision: number
   recall: number
 }
+
 const EvaluationCalc = (tp: number, fp: number, tn: number, fn: number) => {
   const accuracy = (tp + tn) / (tp + fp + tn + fn)
   const precision = tp / (tp + fp)
@@ -28,6 +29,12 @@ const EvaluationCalc = (tp: number, fp: number, tn: number, fn: number) => {
     precision: precision,
     recall: recall,
   }
+}
+const ChangeRocCurveData = (tprArr: number[], fprArr: number[]) => {
+  return fprArr.map((fpr, index) => ({
+    tpr: tprArr[index],
+    fpr: fpr,
+  }))
 }
 
 const LearningResults: React.FC<Props> = ({ evaluation }) => {
@@ -43,6 +50,13 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
     tn: evaluation[0].TN,
     fn: evaluation[0].FN,
   })
+  const [rocCurveData, setRocCurveData] = useState([
+    {
+      tpr: 0,
+      fpr: 0,
+    },
+  ])
+  const auc = evaluation[0].AUC.toFixed(4)
 
   const setActivePage = (index: number) => {
     setActive(index)
@@ -57,6 +71,8 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
         evaluation[0].FN,
       ),
     )
+
+    setRocCurveData(ChangeRocCurveData(evaluation[0].TPR, evaluation[0].FPR))
   }, [evaluation])
 
   return (
@@ -88,7 +104,7 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
               </div>
               <div className="flex gap-4 h-60">
                 <ConfusionMatrix data={confusionMatrixData} />
-                <RocCurve />
+                <RocCurve data={rocCurveData} auc={auc} />
               </div>
               <div className="mt-8">
                 <Card shadow="sm" padding="lg" radius="md" withBorder>
