@@ -131,6 +131,7 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance, test }) => {
           <SideBar active={active} setActive={setActivePage} />
           <div className="flex w-full h-full">
             <div className="h-auto w-1/2 p-10">
+              <h3 className="my-2">Model Version</h3>
               <VersionSelect />
               <div className="flex justify-center my-6">
                 <EvaluationRing
@@ -160,9 +161,11 @@ const LearningResults: React.FC<Props> = ({ evaluation, importance, test }) => {
             </div>
             <div className="w-1/2 p-12">
               <div className="h-3/4 mb-6">
+                <h3 className="my-0">Feature Importance</h3>
                 <ImportanceBar data={importanceData} />
               </div>
               <div className="h-1/4">
+                <h3 className="my-2">Memo</h3>
                 <Memo />
               </div>
             </div>
