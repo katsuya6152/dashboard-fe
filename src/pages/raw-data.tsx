@@ -14,9 +14,9 @@ const RawData: React.FC<Props> = ({ raceData }) => {
   const [activeTable, setActiveTable] = useState(1)
   const [data, setData] = useState(raceData)
   const [crawlResultData] = useState<CrawlResultsType>({
-    information: 4780,
-    details: 62057,
-    acquisitionDate: '2023/2/5',
+    information: 4941,
+    details: 64222,
+    acquisitionDate: '2023/4/12',
   })
   const [SearchCriteriaData] = useState<SearchCriteriaType>({
     racetype: '芝',
