@@ -7,7 +7,7 @@ const nextConfig = {
     dirs: ['src/'],
   },
   env: {
-    server: isProd ? 'https://production-server.com' : 'http://localhost:3001',
+    server: isProd ? 'https://dashboard-be.fly.dev' : 'http://localhost:8080',
   },
 }
 
