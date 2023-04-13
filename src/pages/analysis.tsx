@@ -17,8 +17,12 @@ export default function Analysis() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className="bg-white">
-        <SideBar active={active} setActive={setActivePage} />
-        <div className="flex justify-center">Analysis Page</div>
+        <div className="flex h-screen">
+          <SideBar active={active} setActive={setActivePage} />
+          <div className="flex w-full h-full justify-center items-center">
+            <div className="text-9xl font-black">作成中</div>
+          </div>
+        </div>
       </main>
     </>
   )

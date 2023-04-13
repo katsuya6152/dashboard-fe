@@ -1,10 +1,15 @@
+import { Card } from '@mantine/core'
 import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 
 import ConfusionMatrix from '@/components/learning-results/ConfusionMatrix'
 import EvaluationRing from '@/components/learning-results/EvaluationRing'
+import ImportanceBar from '@/components/learning-results/ImportanceBar'
+import Memo from '@/components/learning-results/MemoArea'
+import RocCurve from '@/components/learning-results/RocCurve'
 import VersionSelect from '@/components/learning-results/Select'
+import TestTable from '@/components/learning-results/TestTable'
 import SideBar from '@/components/SideBar'
 import { ax } from '@/libs/axios'
 import { EvaluationType } from '@/types'
@@ -13,25 +18,61 @@ type EvaluationValueType = {
   accuracy: number
   precision: number
   recall: number
+  f1: number
 }
+type ImportanceDataType = {
+  id: string
+  create: string
+  importance: string
+  version: number
+}
+type TestDataType = {
+  id: string
+  create: string
+  test_data: string
+  version: number
+}
+
 const EvaluationCalc = (tp: number, fp: number, tn: number, fn: number) => {
   const accuracy = (tp + tn) / (tp + fp + tn + fn)
   const precision = tp / (tp + fp)
   const recall = tp / (tp + fn)
+  const f1 = (2 * recall * precision) / (recall + precision)
 
   return {
     accuracy: accuracy,
     precision: precision,
     recall: recall,
+    f1: f1,
   }
 }
+const ChangeRocCurveData = (tprArr: number[], fprArr: number[]) => {
+  return fprArr.map((fpr, index) => ({
+    tpr: tprArr[index],
+    fpr: fpr,
+  }))
+}
+const ChangeImportanceData = (
+  str: string,
+): { feature: string; value: number }[] => {
+  const obj = JSON.parse(str).importance as Record<string, number>
+  const entries = Object.entries(obj)
+  return entries.map((data) => ({
+    feature: data[0],
+    value: data[1],
+  }))
+}
+const ChangeTestData = (str: string) => {
+  return JSON.parse(str).slice(0, 100)
+}
 
-const LearningResults: React.FC<Props> = ({ evaluation }) => {
+const LearningResults: React.FC<Props> = ({ evaluation, importance, test }) => {
   const [active, setActive] = useState(1)
   const [evaluationValue, setEvaluationValue] = useState<EvaluationValueType>({
     accuracy: 0,
     precision: 0,
     recall: 0,
+    f1: 0,
   })
   const [confusionMatrixData] = useState({
     tp: evaluation[0].TP,
@@ -39,6 +80,20 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
     tn: evaluation[0].TN,
     fn: evaluation[0].FN,
   })
+  const [rocCurveData, setRocCurveData] = useState([
+    {
+      tpr: 0,
+      fpr: 0,
+    },
+  ])
+  const auc = evaluation[0].AUC.toFixed(4)
+  const [importanceData, setImportance] = useState([
+    {
+      feature: 'feature',
+      value: 1,
+    },
+  ])
+  const [testData, setTestData] = useState([])
 
   const setActivePage = (index: number) => {
     setActive(index)
@@ -53,7 +108,16 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
         evaluation[0].FN,
       ),
     )
+    setRocCurveData(ChangeRocCurveData(evaluation[0].TPR, evaluation[0].FPR))
   }, [evaluation])
+
+  useEffect(() => {
+    setImportance(ChangeImportanceData(importance[0].importance))
+  }, [importance])
+
+  useEffect(() => {
+    setTestData(ChangeTestData(test[0].test_data))
+  }, [test])
 
   return (
     <>
@@ -63,12 +127,13 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className="bg-white">
-        <div className="flex">
+        <div className="flex h-screen">
           <SideBar active={active} setActive={setActivePage} />
-          <div className="flex w-full">
-            <div className="w-1/2 p-12">
+          <div className="flex w-full h-full">
+            <div className="h-auto w-1/2 p-10">
+              <h3 className="my-2">Model Version</h3>
               <VersionSelect />
-              <div className="flex">
+              <div className="flex justify-center my-6">
                 <EvaluationRing
                   label={'Accuracy'}
                   value={evaluationValue.accuracy}
@@ -78,13 +143,32 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
                   value={evaluationValue.precision}
                 />
                 <EvaluationRing
-                  label={'Rcall'}
+                  label={'Recall'}
                   value={evaluationValue.recall}
                 />
+                <EvaluationRing label={'F1'} value={evaluationValue.f1} />
               </div>
-              <ConfusionMatrix data={confusionMatrixData} />
+              <div className="flex gap-4 h-60">
+                <ConfusionMatrix data={confusionMatrixData} />
+                <RocCurve data={rocCurveData} auc={auc} />
+              </div>
+              <div className="mt-8">
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                  <h3 className="my-0">Test Data</h3>
+                  <TestTable data={testData} />
+                </Card>
+              </div>
             </div>
-            <div className="w-1/2 p-12">Right</div>
+            <div className="w-1/2 p-12">
+              <div className="h-3/4 mb-6">
+                <h3 className="my-0">Feature Importance</h3>
+                <ImportanceBar data={importanceData} />
+              </div>
+              <div className="h-1/4">
+                <h3 className="my-2">Memo</h3>
+                <Memo />
+              </div>
+            </div>
           </div>
         </div>
       </main>
@@ -94,14 +178,33 @@ const LearningResults: React.FC<Props> = ({ evaluation }) => {
 
 type Props = {
   evaluation: EvaluationType[]
+  importance: ImportanceDataType[]
+  test: TestDataType[]
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const apiUrl = '/results/evaluation'
-  const { data } = await ax.get<EvaluationType[]>(apiUrl, {
-    params: { version: 0 },
-  })
-  return { props: { evaluation: data } }
+  const [evaluationRes, importanceRes, processedTestRes] = await Promise.all([
+    ax.get<EvaluationType[]>('/results/evaluation', {
+      params: { version: 0 },
+    }),
+    ax.get<ImportanceDataType[]>('/results/importance', {
+      params: { version: 0 },
+    }),
+    ax.get<TestDataType[]>('/processed-data/test', {
+      params: { version: 0 },
+    }),
+  ])
+
+  const evaluationData = evaluationRes.data
+  const importanceData = importanceRes.data
+  const testData = processedTestRes.data
+  return {
+    props: {
+      evaluation: evaluationData,
+      importance: importanceData,
+      test: testData,
+    },
+  }
 }
 
 export default LearningResults

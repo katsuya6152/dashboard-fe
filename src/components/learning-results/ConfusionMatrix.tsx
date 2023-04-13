@@ -1,9 +1,10 @@
-import dynamic from 'next/dynamic'
-import React, { useState } from 'react'
 const Heatmap = dynamic(
   () => import('@ant-design/plots').then(({ Heatmap }) => Heatmap),
   { ssr: false },
 )
+
+import dynamic from 'next/dynamic'
+import React, { useState } from 'react'
 
 const ConfusionMatrix = (props: ConfusionMatrixProps) => {
   const [data] = useState([
@@ -37,6 +38,7 @@ const ConfusionMatrix = (props: ConfusionMatrixProps) => {
     sizeField: 'value',
     shape: 'square',
     color: ['#dddddd', '#9ec8e0', '#5fa4cd', '#2e7ab6', '#114d90'],
+    autoFit: true,
     label: {
       style: {
         fill: '#000',
@@ -46,7 +48,7 @@ const ConfusionMatrix = (props: ConfusionMatrixProps) => {
     },
   }
 
-  return <Heatmap {...config} className="max-h-60" />
+  return <Heatmap {...config} className="w-1/2" />
 }
 
 type ConfusionMatrixProps = {
